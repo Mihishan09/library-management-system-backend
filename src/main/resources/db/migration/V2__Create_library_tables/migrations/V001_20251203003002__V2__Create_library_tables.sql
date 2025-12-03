@@ -2,25 +2,15 @@
 -- Simple Database Migration Script
 -- ============================================
 
--- Create database
-CREATE DATABASE IF NOT EXISTS library_management;
-USE library_management;
-
--- Drop tables if they exist (in correct order due to foreign keys)
-DROP TABLE IF EXISTS reservations;
-DROP TABLE IF EXISTS books;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS categories;
-
 -- Create categories table
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -30,7 +20,7 @@ CREATE TABLE users (
 );
 
 -- Create books table
-CREATE TABLE books (
+CREATE TABLE IF NOT EXISTS books (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     author VARCHAR(255) NOT NULL,
@@ -45,7 +35,7 @@ CREATE TABLE books (
 );
 
 -- Create reservations table
-CREATE TABLE reservations (
+CREATE TABLE IF NOT EXISTS reservations (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     book_id INT NOT NULL,
