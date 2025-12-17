@@ -13,6 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for librarian/admin endpoints.
+ * All endpoints require LIBRARIAN role authorization.
+ * Handles category management, book management, and user blacklisting.
+ */
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "*")
@@ -26,6 +31,12 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    @GetMapping("/users")
+    public ResponseEntity<?> listUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
+    }
 
     @PreAuthorize("hasRole('LIBRARIAN')")
     @PostMapping("/categories")

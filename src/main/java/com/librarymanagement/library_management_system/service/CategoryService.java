@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoryService {
 
@@ -22,6 +24,10 @@ public class CategoryService {
         category.setName(request.getName());
         categoryRepository.save(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(category);
+    }
+
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
     }
 }
 

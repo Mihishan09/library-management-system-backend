@@ -17,6 +17,10 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service class for book management operations.
+ * Handles book creation, status updates, search/filtering, and retrieval.
+ */
 @Service
 public class BookService {
 
@@ -62,6 +66,14 @@ public class BookService {
         }
         book.setStatus(status);
         bookRepository.save(book);
+        return ResponseEntity.ok(book);
+    }
+
+    public ResponseEntity<?> getBookById(Integer id) {
+        Book book = bookRepository.findById(id).orElse(null);
+        if (book == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+        }
         return ResponseEntity.ok(book);
     }
 

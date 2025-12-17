@@ -10,9 +10,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global exception handler for the application.
+ * Handles validation errors and other exceptions across all controllers.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     
+    /**
+     * Handles validation errors from @Valid annotations.
+     *
+     * @param ex the validation exception
+     * @return ResponseEntity with field errors mapped to error messages
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

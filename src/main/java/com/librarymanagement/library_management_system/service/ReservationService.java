@@ -16,6 +16,10 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Optional;
 
+/**
+ * Service class for managing book reservations.
+ * Handles reservation creation, validation, and book status updates.
+ */
 @Service
 public class ReservationService {
 
@@ -28,6 +32,14 @@ public class ReservationService {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Creates a new book reservation for the authenticated user.
+     * Validates user status, book availability, and reservation period.
+     *
+     * @param request the reservation request containing bookId and days (7, 14, or 21)
+     * @param principal the authenticated user principal
+     * @return ResponseEntity with reservation details on success, or error message on failure
+     */
     public ResponseEntity<?> reserveBook(ReserveBookRequest request, Principal principal) {
         if (principal == null || principal.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");

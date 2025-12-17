@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for user authentication and management operations.
+ * Handles user signup, login, and JWT token generation.
+ */
 @Service
 public class UserService {
     
@@ -21,6 +25,12 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
     
+    /**
+     * Registers a new user in the system.
+     *
+     * @param signupRequest the signup request containing email, password, and role
+     * @return AuthResponse containing JWT token and user info on success, or error message on failure
+     */
     public AuthResponse signup(SignupRequest signupRequest) {
         // Check if user already exists
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
@@ -50,6 +60,12 @@ public class UserService {
         return new AuthResponse(token, user.getEmail(), user.getRole().name(), user.getId());
     }
     
+    /**
+     * Authenticates a user and generates a JWT token.
+     *
+     * @param loginRequest the login request containing email and password
+     * @return AuthResponse containing JWT token and user info on success, or error message on failure
+     */
     public AuthResponse login(LoginRequest loginRequest) {
         // Find user by email
         User user = userRepository.findByEmail(loginRequest.getEmail())

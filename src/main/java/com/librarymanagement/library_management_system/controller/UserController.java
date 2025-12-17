@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
+/**
+ * REST controller for user-facing endpoints.
+ * Handles book browsing, book details, and reservation operations.
+ * Accessible to both USER and LIBRARIAN roles.
+ */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
@@ -29,6 +34,12 @@ public class UserController {
                                        @RequestParam(required = false) String genre,
                                        @RequestParam(required = false) String language) {
         return ResponseEntity.ok(bookService.searchBooks(category, author, genre, language));
+    }
+
+    @PreAuthorize("hasAnyRole('USER','LIBRARIAN')")
+    @GetMapping("/books/{id}")
+    public ResponseEntity<?> getBook(@PathVariable Integer id) {
+        return bookService.getBookById(id);
     }
 
     @PreAuthorize("hasAnyRole('USER','LIBRARIAN')")

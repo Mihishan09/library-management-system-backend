@@ -1,7 +1,3 @@
--- ============================================
--- Simple Database Migration Script
--- ============================================
-
 -- Create categories table
 CREATE TABLE IF NOT EXISTS categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -34,6 +30,18 @@ CREATE TABLE IF NOT EXISTS books (
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
+-- Add created_at column if it doesn't exist (for existing tables created before this migration)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_SCHEMA = DATABASE() 
+    AND TABLE_NAME = 'books' 
+    AND COLUMN_NAME = 'created_at');
+SET @sql = IF(@col_exists = 0, 
+    'ALTER TABLE books ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP', 
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- Create reservations table
 CREATE TABLE IF NOT EXISTS reservations (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -48,11 +56,11 @@ CREATE TABLE IF NOT EXISTS reservations (
 );
 
 -- ============================================
--- Insert Sample Data
+-- Insert Sample Data (using INSERT IGNORE to avoid duplicates)
 -- ============================================
 
--- Insert categories
-INSERT INTO categories (name) VALUES 
+-- Insert categories (ignore duplicates)
+INSERT IGNORE INTO categories (name) VALUES 
 ('Fiction'),
 ('Science Fiction'),
 ('Mystery & Thriller'),
@@ -64,15 +72,15 @@ INSERT INTO categories (name) VALUES
 ('Fantasy'),
 ('Self-Help');
 
--- Insert users (use actual hashed passwords in production)
-INSERT INTO users (email, password, role) VALUES 
+-- Insert users (ignore duplicates - use actual hashed passwords in production)
+INSERT IGNORE INTO users (email, password, role) VALUES 
 ('admin@library.com', 'hashed_password', 'LIBRARIAN'),
 ('librarian@library.com', 'hashed_password', 'LIBRARIAN'),
 ('user1@email.com', 'hashed_password', 'USER'),
 ('user2@email.com', 'hashed_password', 'USER');
 
--- Insert books
-INSERT INTO books (title, author, genre, language, isbn, category_id) VALUES
+-- Insert books (ignore duplicates)
+INSERT IGNORE INTO books (title, author, genre, language, isbn, category_id) VALUES
 ('To Kill a Mockingbird', 'Harper Lee', 'Classic', 'English', '9780061120084', 1),
 ('1984', 'George Orwell', 'Dystopian', 'English', '9780451524935', 1),
 ('Pride and Prejudice', 'Jane Austen', 'Romance', 'English', '9780141439518', 1),
@@ -81,11 +89,16 @@ INSERT INTO books (title, author, genre, language, isbn, category_id) VALUES
 ('The Girl with the Dragon Tattoo', 'Stieg Larsson', 'Mystery', 'English', '9780307269751', 3),
 ('Gone Girl', 'Gillian Flynn', 'Thriller', 'English', '9780307588371', 3);
 
--- Insert sample reservation
-INSERT INTO reservations (user_id, book_id, reservation_date, due_date) VALUES
-(3, 1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 14 DAY));
+-- Insert sample reservation (ignore duplicates)
+INSERT IGNORE INTO reservations (user_id, book_id, reservation_date, due_date) 
+SELECT 3, 1, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 14 DAY)
+WHERE EXISTS (SELECT 1 FROM users WHERE id = 3) 
+  AND EXISTS (SELECT 1 FROM books WHERE id = 1)
+  AND NOT EXISTS (SELECT 1 FROM reservations WHERE user_id = 3 AND book_id = 1);
 
--- Update book status to RESERVED
-UPDATE books SET status = 'RESERVED' WHERE id = 1;
+-- Update book status to RESERVED (only if book exists and is available)
+UPDATE books SET status = 'RESERVED' 
+WHERE id = 1 AND status = 'AVAILABLE' 
+AND EXISTS (SELECT 1 FROM reservations WHERE book_id = 1);
 
 SELECT 'Database migration completed successfully!' as message;

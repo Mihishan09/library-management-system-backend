@@ -8,11 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
     public ResponseEntity<?> blacklistUser(Integer userId, BlacklistUserRequest request) {
         User user = userRepository.findById(userId).orElse(null);
