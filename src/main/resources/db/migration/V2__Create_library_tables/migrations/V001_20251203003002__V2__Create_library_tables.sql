@@ -102,3 +102,4 @@ WHERE id = 1 AND status = 'AVAILABLE'
 AND EXISTS (SELECT 1 FROM reservations WHERE book_id = 1);
 
 SELECT 'Database migration completed successfully!' as message;
+
